@@ -51,6 +51,11 @@
 #include "usb_config.h"
 #include "ramdisk.h"
 
+#define BTN_LEFT    (GPIO_PIN_4)
+#define BTN_RIGHT   (GPIO_PIN_0)
+#define LED_RED     (GPIO_PIN_1)
+#define LED_BLUE    (GPIO_PIN_2)
+#define LED_GREEN   (GPIO_PIN_3)
 
 tDMAControlTable uDMAControlTable[64] __attribute__ ((aligned(1024)));
 
@@ -86,23 +91,28 @@ CallApplication(unsigned long ulStartAddr)
 
 int main(void)
 {
-	// Setup GPIO for the SW2 button
-	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+	// We are waking from hibernation, jump to the user program
+	if (HWREG(HIB_RIS) & HIBERNATE_INT_PIN_WAKE) {
+		CallApplication(USER_PROGRAM_START);
+	}
 
+	// Setup GPIO for buttons
+	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
 	HWREG(GPIO_PORTF_BASE + GPIO_O_LOCK) = GPIO_LOCK_KEY_DD;
 	HWREG(GPIO_PORTF_BASE + GPIO_O_CR) |= 0x01;
 	HWREG(GPIO_PORTF_BASE + GPIO_O_LOCK) = 0;
 
-	ROM_GPIODirModeSet(GPIO_PORTF_BASE, GPIO_PIN_0, GPIO_DIR_MODE_IN);
-	ROM_GPIOPadConfigSet(GPIO_PORTF_BASE, GPIO_PIN_0, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
+	ROM_GPIODirModeSet(GPIO_PORTF_BASE, BTN_LEFT,  GPIO_DIR_MODE_IN);
+	ROM_GPIODirModeSet(GPIO_PORTF_BASE, BTN_RIGHT, GPIO_DIR_MODE_IN);
+	ROM_GPIOPadConfigSet(GPIO_PORTF_BASE, BTN_LEFT,  GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
+	ROM_GPIOPadConfigSet(GPIO_PORTF_BASE, BTN_RIGHT, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
 
-	// Check if button is pressed and if we are waking from hibernation, otherwise jump to program
-	if (ROM_GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_0) || ((HWREG(HIB_RIS) & (HIBERNATE_INT_PIN_WAKE))) ){
-		// Not pressed, call user program
+	// If one of the buttons is not pressed, jump to the user program
+	if (ROM_GPIOPinRead(GPIO_PORTF_BASE, BTN_LEFT) || ROM_GPIOPinRead(GPIO_PORTF_BASE, BTN_RIGHT)) {
 		CallApplication(USER_PROGRAM_START);
 	}
 
-	// Button pressed, start up the bootloader
+	// Both buttons pressed, start up the bootloader ...
 
 	// Enable lazy stacking for interrupt handlers.  This allows floating-point
 	// instructions to be used within interrupt handlers, but at the expense of
@@ -113,7 +123,7 @@ int main(void)
 	ROM_SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_XTAL_16MHZ | SYSCTL_OSC_MAIN);
 
 
-	ROM_GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2);
+	ROM_GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, LED_RED | LED_GREEN | LED_BLUE);
 
 	// Configure and enable uDMA
 	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_UDMA);
@@ -143,10 +153,10 @@ int main(void)
 #endif
 
 	while(1) {
-		// Blinking the LED so the user knows everything is working
-		GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIO_PIN_1);
+		// Blink the green LED so the user knows we're in a bootloader mode
+		GPIOPinWrite(GPIO_PORTF_BASE, LED_GREEN, LED_GREEN);
 		SysCtlDelay(SysCtlClockGet() / 4 / 4);
-		GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0);
+		GPIOPinWrite(GPIO_PORTF_BASE, LED_GREEN, 0);
 		SysCtlDelay(SysCtlClockGet() / 4 / 4);
 	}
 }
