@@ -57,7 +57,7 @@ OD      = ${PREFIX_ARM}-objdump
 # Option arguments for C compiler.
 CFLAGS=-mthumb ${CPU} ${FPU} -Os -ffunction-sections -fdata-sections -MD -std=c99 -Wall -pedantic -c -g
 # Library stuff passed as flags!
-CFLAGS+= -I ${STELLARISWARE_PATH} -DPART_$(PART) -c -DTARGET_IS_BLIZZARD_RA1 -Dgcc
+CFLAGS+= -I ${STELLARISWARE_PATH} -DPART_$(PART) -c -DTARGET_IS_BLIZZARD_RA1 -Dgcc -DSHA2_USE_INTTYPES_H
 
 # Uncomment this to enable debug via UART
 # CFLAGS+= -DDEBUG
@@ -66,7 +66,7 @@ CFLAGS+= -I ${STELLARISWARE_PATH} -DPART_$(PART) -c -DTARGET_IS_BLIZZARD_RA1 -Dg
 # CFLAGS+= -DNOREAD
 
 # Uncomment this to allow only uploading of signed firmware
-# CFLAGS+= -DCRYPTO -DSHA2_USE_INTTYPES_H
+# CFLAGS+= -DCRYPTO
 
 # Flags for LD
 LFLAGS  = --gc-sections
