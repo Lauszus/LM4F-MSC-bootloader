@@ -62,6 +62,9 @@ CFLAGS+= -I ${STELLARISWARE_PATH} -DPART_$(PART) -c -DTARGET_IS_BLIZZARD_RA1 -Dg
 # Uncomment this to enable debug via UART
 # CFLAGS+= -DDEBUG
 
+# Uncomment this to disable firmware dumping (i.e. reading via MSC)
+# CFLAGS+= -DNOREAD
+
 # Flags for LD
 LFLAGS  = --gc-sections
 

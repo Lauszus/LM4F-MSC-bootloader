@@ -182,9 +182,16 @@ unsigned long massStorageRead(void *drive, unsigned char *data,unsigned long blo
 		}
 	}
 	else if (blockNumber >= FIRMWARE_START_SECTOR && blockNumber < FIRMWARE_START_SECTOR + USER_PROGRAM_LENGTH / BLOCK_SIZE) {
+#ifdef NOREAD
+		unsigned char dummy[] = "READ DISABLED   ";
+		for (int i = 0; i < BLOCK_SIZE; i++) {
+			data[i] = dummy[i % 16];
+		}
+#else
 		for (int i = 0; i < BLOCK_SIZE; i++) {
 			data[i] = ((unsigned char *)(USER_PROGRAM_START + (blockNumber - FIRMWARE_START_SECTOR) * BLOCK_SIZE))[i];
 		}
+#endif
 	}
 	return BLOCK_SIZE;
 }
