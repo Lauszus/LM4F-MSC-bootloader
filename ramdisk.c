@@ -148,23 +148,17 @@ unsigned char dirEntry[] = {
 
 void *massStorageOpen(unsigned long drive)
 {
-#ifdef DEBUG
-	UARTprintf("Mass storage opened.\n");
-#endif
 	return ((void *)&massStorageDrive);
 }
 
 void massStorageClose(void *drive)
 {
-#ifdef DEBUG
-	UARTprintf("Mass storage closed.\n");
-#endif
 }
 
-unsigned long massStorageRead(void *drive, unsigned char *data,unsigned long blockNumber,unsigned long numberOfBlocks)
+unsigned long massStorageRead(void *drive, unsigned char *data, unsigned long blockNumber, unsigned long numberOfBlocks)
 {
 #ifdef DEBUG
-	UARTprintf("Reading block %d out of %d\n", blockNumber, numberOfBlocks);
+	UARTprintf("Reading %d block(s) starting at %d\n", numberOfBlocks, blockNumber);
 #endif
 	for (int i = 0; i < BLOCK_SIZE; i++) {
 		data[i] = 0;
@@ -205,11 +199,11 @@ unsigned long massStorageRead(void *drive, unsigned char *data,unsigned long blo
 unsigned long massStorageWrite(void *drive, unsigned char *data, unsigned long blockNumber, unsigned long numberOfBlocks)
 {
 #ifdef DEBUG
-	UARTprintf("Writing block %d out of %d\n", blockNumber, numberOfBlocks);
+	UARTprintf("Writing %d block(s) starting at %d\n", numberOfBlocks, blockNumber);
 	UARTprintf("Firmware start cluster: %d\n", firmware_start_cluster);
 	for (int j = 0; j < BLOCK_SIZE * numberOfBlocks; j += 16) {
 		for (int i = 0; i < 16; i++) {
-			UARTprintf("%x ",data[j+i]);
+			UARTprintf("%02x ",data[j+i]);
 		}
 		UARTprintf("\n");
 	}

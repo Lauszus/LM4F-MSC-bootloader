@@ -35,8 +35,8 @@
 
 extern void *massStorageOpen(unsigned long drive);
 extern void massStorageClose(void *drive);
-extern unsigned long massStorageRead(void *drive, unsigned char *data,unsigned long blockNumber,unsigned long numberOfBlocks);
-extern unsigned long massStorageWrite(void *drive, unsigned char *data,unsigned long blockNumber,unsigned long numberOfBlocks);
+extern unsigned long massStorageRead(void *drive, unsigned char *data, unsigned long blockNumber, unsigned long numberOfBlocks);
+extern unsigned long massStorageWrite(void *drive, unsigned char *data, unsigned long blockNumber, unsigned long numberOfBlocks);
 extern unsigned long massStorageNumBlocks(void *drive);
 
 #endif

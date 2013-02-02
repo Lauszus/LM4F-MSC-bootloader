@@ -37,9 +37,9 @@
 #include "ramdisk.h"
 
 const unsigned char languageDescriptor[] ={
-	4,        // descriptor length
-	0x03,     // descriptor type - String
-	0x09,0x04 // supported language code English - United States
+	4,         // Descriptor length
+	0x03,      // Descriptor type - String
+	0x09, 0x04 // Supported language code English - United States
 };
 
 
