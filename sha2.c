@@ -31,7 +31,6 @@
  *
  */
 
-#include <string.h>	/* memcpy()/memset() or bcopy()/bzero() */
 #include <assert.h>	/* assert() */
 #include "sha2.h"
 
@@ -164,13 +163,14 @@ typedef u_int64_t sha2_word64;	/* Exactly 8 bytes */
  */
 #if !defined(SHA2_USE_MEMSET_MEMCPY) && !defined(SHA2_USE_BZERO_BCOPY)
 /* Default to memset()/memcpy() if no option is specified */
-#define	SHA2_USE_MEMSET_MEMCPY	1
+//#define	SHA2_USE_MEMSET_MEMCPY	1
 #endif
 #if defined(SHA2_USE_MEMSET_MEMCPY) && defined(SHA2_USE_BZERO_BCOPY)
 /* Abort with an error if BOTH options are defined */
 #error Define either SHA2_USE_MEMSET_MEMCPY or SHA2_USE_BZERO_BCOPY, not both!
 #endif
 
+/*
 #ifdef SHA2_USE_MEMSET_MEMCPY
 #define MEMSET_BZERO(p,l)	memset((p), 0, (l))
 #define MEMCPY_BCOPY(d,s,l)	memcpy((d), (s), (l))
@@ -179,6 +179,12 @@ typedef u_int64_t sha2_word64;	/* Exactly 8 bytes */
 #define MEMSET_BZERO(p,l)	bzero((p), (l))
 #define MEMCPY_BCOPY(d,s,l)	bcopy((s), (d), (l))
 #endif
+*/
+
+// define our own
+
+#define MEMSET_BZERO(p,l)	{ for (int __i = 0; __i < (l); __i++) ((char *)p)[__i] = 0; }
+#define MEMCPY_BCOPY(d,s,l)	{ for (int __i = 0; __i < (l); __i++) ((char *)d)[__i] = ((char *)s)[__i]; }
 
 
 /*** THE SIX LOGICAL FUNCTIONS ****************************************/

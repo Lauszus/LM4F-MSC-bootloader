@@ -49,6 +49,7 @@ extern "C" {
 
 #ifdef SHA2_USE_INTTYPES_H
 
+#include <machine/endian.h>
 #include <inttypes.h>
 
 #endif /* SHA2_USE_INTTYPES_H */

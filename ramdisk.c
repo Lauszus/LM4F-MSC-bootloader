@@ -148,11 +148,17 @@ unsigned char dirEntry[] = {
 
 void *massStorageOpen(unsigned long drive)
 {
+#ifdef DEBUG
+	UARTprintf("Mass storage opened.\n");
+#endif
 	return ((void *)&massStorageDrive);
 }
 
 void massStorageClose(void *drive)
 {
+#ifdef DEBUG
+	UARTprintf("Mass storage closed.\n");
+#endif
 }
 
 unsigned long massStorageRead(void *drive, unsigned char *data,unsigned long blockNumber,unsigned long numberOfBlocks)
