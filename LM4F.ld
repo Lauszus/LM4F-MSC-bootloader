@@ -9,7 +9,7 @@ At this point it supports only C and will lead to weird behavior when used for C
 ENTRY(rst_handler)
 
 MEMORY
-{ 
+{
   FLASH (rx) : ORIGIN = 0x0000000, LENGTH = 0x00040000
   RAM (xrw) : ORIGIN = 0x20000000, LENGTH = 0x00008000
 }

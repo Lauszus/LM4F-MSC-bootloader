@@ -23,10 +23,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# File:			Makefile.
-# Author:		Mauro Scomparin <http://scompoprojects.worpress.com>.
-# Version:		1.0.0.
-# Description:	Sample makefile.
+# File:         Makefile
+# Author:       Mauro Scomparin <http://scompoprojects.worpress.com>
+# Version:      1.0.0
+# Description:  Sample makefile
 
 #==============================================================================
 #           Cross compiling toolchain / tools specifications
@@ -43,7 +43,7 @@ CPU=-mcpu=cortex-m4
 FPU=-mfpu=fpv4-sp-d16 -mfloat-abi=softfp
 
 # Stellarisware path
-STELLARISWARE_PATH=../../../
+STELLARISWARE_PATH=../../..
 
 # Program name definition for ARM GNU C compiler.
 CC      = ${PREFIX_ARM}-gcc
@@ -57,10 +57,10 @@ OD      = ${PREFIX_ARM}-objdump
 # Option arguments for C compiler.
 CFLAGS=-mthumb ${CPU} ${FPU} -Os -ffunction-sections -fdata-sections -MD -std=c99 -Wall -pedantic -c -g
 # Library stuff passed as flags!
-CFLAGS+= -I ${STELLARISWARE_PATH} -DPART_$(PART) -c -DTARGET_IS_BLIZZARD_RA1 -Dgcc 
+CFLAGS+= -I ${STELLARISWARE_PATH} -DPART_$(PART) -c -DTARGET_IS_BLIZZARD_RA1 -Dgcc
 
-#Uncomment this to enable debug:
-#CFLAGS+= -DDEBUG
+# Uncomment this to enable debug via UART
+# CFLAGS+= -DDEBUG
 
 # Flags for LD
 LFLAGS  = --gc-sections
@@ -77,9 +77,6 @@ ODFLAGS = -S
 LIB_GCC_PATH=${shell ${CC} ${CFLAGS} -print-libgcc-file-name}
 LIBC_PATH=${shell ${CC} ${CFLAGS} -print-file-name=libc.a}
 LIBM_PATH=${shell ${CC} ${CFLAGS} -print-file-name=libm.a}
-#LIBC_PATH=/home/cypher/stellaris/newlib/arm-none-eabi/lib/thumb2/libc.a
-#LIBM_PATH=/home/cypher/stellaris/newlib/arm-none-eabi/lib/thumb2/libm.a
-
 
 # Uploader tool path.
 # Set a relative or absolute path to the upload tool program.
@@ -100,7 +97,7 @@ STARTUP_FILE = LM4F_startup
 LINKER_FILE = LM4F.ld
 
 SRC = $(wildcard *.c)
-SRC += ../../../utils/uartstdio.c
+SRC += ${STELLARISWARE_PATH}/utils/uartstdio.c
 OBJS = $(SRC:.c=.o)
 
 #==============================================================================
@@ -118,13 +115,13 @@ all: $(OBJS) ${PROJECT_NAME}.axf ${PROJECT_NAME}
 ${PROJECT_NAME}.axf: $(OBJS)
 	@echo
 	@echo Making driverlib
-	$(MAKE) -C ${STELLARISWARE_PATH}driverlib/
+	$(MAKE) -C ${STELLARISWARE_PATH}/driverlib/
 	@echo
 	@echo Making usblib
-	$(MAKE) -C ${STELLARISWARE_PATH}usblib/
+	$(MAKE) -C ${STELLARISWARE_PATH}/usblib/
 	@echo
 	@echo Linking...
-	$(LD) -T $(LINKER_FILE) $(LFLAGS) -o ${PROJECT_NAME}.axf $(OBJS) ${STELLARISWARE_PATH}usblib/gcc-cm4f/libusb-cm4f.a ${STELLARISWARE_PATH}driverlib/gcc-cm4f/libdriver-cm4f.a $(LIBM_PATH) $(LIBC_PATH) $(LIB_GCC_PATH)
+	$(LD) -T $(LINKER_FILE) $(LFLAGS) -o ${PROJECT_NAME}.axf $(OBJS) ${STELLARISWARE_PATH}/usblib/gcc-cm4f/libusb-cm4f.a ${STELLARISWARE_PATH}/driverlib/gcc-cm4f/libdriver-cm4f.a $(LIBM_PATH) $(LIBC_PATH) $(LIB_GCC_PATH)
 
 ${PROJECT_NAME}: ${PROJECT_NAME}.axf
 	@echo
@@ -139,9 +136,9 @@ ${PROJECT_NAME}: ${PROJECT_NAME}.axf
 
 # make clean rule
 clean:
-	rm *.bin *.o *.d *.axf *.lst
+	rm -f *.bin *.o *.d *.axf *.lst
 
 # Rule to load the project to the board
 # I added a sudo because it's needed without a rule.
 load:
-	sudo ${FLASHER} ${PROJECT_NAME}.bin ${FLASHER_FLAGS}
+	sudo ${FLASHER} ${FLASHER_FLAGS} ${PROJECT_NAME}.bin
