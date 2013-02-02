@@ -254,7 +254,7 @@ void ResetISR() {
 	src = &_etext;
 	dest = &_sdata;
 
-	//this too
+	// this too
 	while(dest < &_edata) {
 		*dest++ = *src++;
 	}

@@ -6,7 +6,7 @@ This is a minimal linkerscript that should be easy to port to new microcontrolle
 At this point it supports only C and will lead to weird behavior when used for C++.
 */
 
-ENTRY(rst_handler)
+ENTRY(ResetISR)
 
 MEMORY
 {

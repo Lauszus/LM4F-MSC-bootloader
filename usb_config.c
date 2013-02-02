@@ -78,7 +78,7 @@ const unsigned char * const stringDescriptors[] =
 
 tMSCInstance massStorageInstance;
 
-const tUSBDMSCDevice massStroageDevice =
+const tUSBDMSCDevice massStorageDevice =
 {
 	USB_VID_STELLARIS,
 	USB_PID_MSC,

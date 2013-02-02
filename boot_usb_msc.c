@@ -139,7 +139,7 @@ int main(void)
 	USBStackModeSet(0, USB_MODE_DEVICE, 0);
 
 	// Pass our device information to the USB library and place the device on the bus
-	USBDMSCInit(0, (tUSBDMSCDevice*)&massStroageDevice);
+	USBDMSCInit(0, (tUSBDMSCDevice*)&massStorageDevice);
 
 #ifdef DEBUG
 	// In debug mode, the bootloader prints out debug info via UART

@@ -76,7 +76,7 @@ unsigned char bootSector[] = {
 	0x00,                                                  // Reserved
 	0x29,                                                  // Extended boot signature
 	0x69, 0x17, 0xad, 0x53,                                // Volume serial number
-	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', // Volume label
+	'F', 'I', 'R', 'M', 'W', 'A', 'R', 'E', ' ', ' ', ' ', // Volume label
 	'F', 'A', 'T', '1', '2', ' ', ' ', ' ',                // Filesystem type
 	// Bootstrap code, not really needed
 	/*
