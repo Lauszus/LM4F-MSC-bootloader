@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Andrzej Surowiec <emeryth@gmail.com>
+ * Copyright (c) 2013 Pavol Rusnak <stick@gk2.sk>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -22,13 +22,9 @@
  *
  */
 
-#ifndef __RAMDISK_H__
-#define __RAMDISK_H__
+#ifndef __CRYPTO_H__
+#define __CRYPTO_H__
 
-extern void *massStorageOpen(unsigned long drive);
-extern void massStorageClose(void *drive);
-extern unsigned long massStorageRead(void *drive, unsigned char *data, unsigned long blockNumber, unsigned long numberOfBlocks);
-extern unsigned long massStorageWrite(void *drive, unsigned char *data, unsigned long blockNumber, unsigned long numberOfBlocks);
-extern unsigned long massStorageNumBlocks(void *drive);
+char checkCryptoSignature();
 
 #endif

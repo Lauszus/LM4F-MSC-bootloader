@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, Mauro Scomparin
+ * Copyright (c) 2012, Mauro Scomparin <http://scompoprojects.worpress.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,10 +24,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * File:         LM4F_startup.c
- * Author:       Mauro Scomparin <http://scompoprojects.worpress.com>
- * Version:      1.0.0
- * Description:  LM4F120H5QR startup code
  */
 
 #include "inc/hw_nvic.h"

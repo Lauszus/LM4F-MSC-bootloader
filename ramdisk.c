@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Andrzej Surowiec
+ * Copyright (c) 2012 Andrzej Surowiec <emeryth@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -20,14 +20,10 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * File:        ramdisk.c
- * Author:      Andrzej Surowiec <emeryth@gmail.com>
- * Version:     1.0
- * Decription:  Mass storage filesystem driver
- *
  */
 
 #include "ramdisk.h"
+#include "common.h"
 
 #include "inc/hw_flash.h"
 #include "inc/hw_memmap.h"
@@ -50,8 +46,8 @@
 #define ROOT_ENTRIES 512
 #define ROOT_ENTRY_LENGTH 32
 #define FIRMWARE_BIN_CLUSTER 3
-#define DATA_REGION_SECTOR (RESERVED_SECTORS+FAT_COPIES+(ROOT_ENTRIES*ROOT_ENTRY_LENGTH)/BYTES_PER_SECTOR)
-#define FIRMWARE_START_SECTOR (DATA_REGION_SECTOR+(firmware_start_cluster-2)*SECTORS_PER_CLUSTER)
+#define DATA_REGION_SECTOR (RESERVED_SECTORS + FAT_COPIES + (ROOT_ENTRIES * ROOT_ENTRY_LENGTH) / BYTES_PER_SECTOR)
+#define FIRMWARE_START_SECTOR (DATA_REGION_SECTOR + (firmware_start_cluster - 2) * SECTORS_PER_CLUSTER)
 
 int massStorageDrive = 0;
 int newFirmwareStartSet = 0;
@@ -125,14 +121,24 @@ unsigned char dirEntry[] = {
 	'f', 0x00, 'i', 0x00, 'r', 0x00, 'm', 0x00, 'w', 0x00,            // Five name characters in UTF-16
 	0x0f,                                                             // Attributes
 	0x00,                                                             // Type
+#ifdef CRYPTO
+	0x14,                                                             // Checksum of DOS filename
+	'a', 0x00, 'r', 0x00, 'e', 0x00, '.', 0x00, 's', 0x00, 'i', 0x00, // Six name characters in UTF-16
+	0x00, 0x00,                                                       // First cluster
+	'g', 0x00, 0x00, 0x00,                                            // Two name characters in UTF-16
+#else
 	0x57,                                                             // Checksum of DOS filename
 	'a', 0x00, 'r', 0x00, 'e', 0x00, '.', 0x00, 'b', 0x00, 'i', 0x00, // Six name characters in UTF-16
 	0x00, 0x00,                                                       // First cluster
 	'n', 0x00, 0x00, 0x00,                                            // Two name characters in UTF-16
-
+#endif
 	// 8.3 entry
 	'F', 'I', 'R', 'M', 'W', 'A', 'R', 'E', // Filename
+#ifdef CRYPTO
+	'S', 'I', 'G',                          // Extension
+#else
 	'B', 'I', 'N',                          // Extension
+#endif
 	0x20,                                   // Attribute byte
 	0x00,                                   // Reserved for Windows NT
 	0x00,                                   // Creation millisecond
@@ -143,7 +149,7 @@ unsigned char dirEntry[] = {
 	0xce, 0x01,                             // Last write time
 	0x86, 0x41,                             // Last write date
 	WBVAL(FIRMWARE_BIN_CLUSTER),            // Starting cluster
-	QBVAL(USER_PROGRAM_LENGTH)              // File size in bytes (245760)
+	QBVAL(USER_PROGRAM_LENGTH)              // File size in bytes (240 * 1024 = 245760)
 };
 
 void *massStorageOpen(unsigned long drive)

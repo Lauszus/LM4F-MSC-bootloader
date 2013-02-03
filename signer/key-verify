@@ -1,0 +1,2 @@
+#!/bin/bash
+openssl rsautl -verify -in <(head -c 512 firmware.sig) -inkey public.pem -pubin

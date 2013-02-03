@@ -27,6 +27,10 @@ HOW TO USE:
 
     FLASH (rx) : ORIGIN = 0x00004000, LENGTH = 0x0003c000
 
+  or to (if crypto signatures are enabled):
+
+    FLASH (rx) : ORIGIN = 0x00004200, LENGTH = 0x0003be00
+
   then rebuild your project
 
 * Plug in your board while holding down SW2, or press the reset button while holding SW2, the system should recognize it as a 512kB mass storage device
@@ -51,5 +55,7 @@ KNOWN ISSUES:
 
 Makefile, linker and startup code by Mauro Scomparin and others https://github.com/scompo/stellaris-launchpad-template-gcc
 
-All other code is Copyright 2012 Andrzej Surowiec <emeryth@gmail.com>, released under MIT License.
+SHA-2 code by Aaron D. Gifford - http://www.aarongifford.com/, released under BSD License.
+
+Original code is Copyright 2012 Andrzej Surowiec <emeryth@gmail.com>, released under MIT License.
 http://emerythacks.blogspot.com/

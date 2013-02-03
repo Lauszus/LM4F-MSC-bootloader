@@ -65,7 +65,7 @@ CFLAGS+= -I ${STELLARISWARE_PATH} -DPART_$(PART) -c -DTARGET_IS_BLIZZARD_RA1 -Dg
 # Uncomment this to disable firmware dumping (i.e. reading via MSC)
 # CFLAGS+= -DNOREAD
 
-# Uncomment this to allow only uploading of signed firmware
+# Uncomment this to enable check at start whether the firmware has been cryptographically signed
 # CFLAGS+= -DCRYPTO
 
 # Flags for LD

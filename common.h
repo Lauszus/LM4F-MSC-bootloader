@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Andrzej Surowiec <emeryth@gmail.com>
+ * Copyright (c) 2013 Pavol Rusnak <stick@gk2.sk>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -22,13 +22,27 @@
  *
  */
 
-#ifndef __RAMDISK_H__
-#define __RAMDISK_H__
+#ifndef __COMMON_H__
+#define __COMMON_H__
 
-extern void *massStorageOpen(unsigned long drive);
-extern void massStorageClose(void *drive);
-extern unsigned long massStorageRead(void *drive, unsigned char *data, unsigned long blockNumber, unsigned long numberOfBlocks);
-extern unsigned long massStorageWrite(void *drive, unsigned char *data, unsigned long blockNumber, unsigned long numberOfBlocks);
-extern unsigned long massStorageNumBlocks(void *drive);
+#define BTN_LEFT    (GPIO_PIN_4)
+#define BTN_RIGHT   (GPIO_PIN_0)
+#define LED_RED     (GPIO_PIN_1)
+#define LED_BLUE    (GPIO_PIN_2)
+#define LED_GREEN   (GPIO_PIN_3)
+
+#define USER_PROGRAM_START   (0x4000)
+#define USER_PROGRAM_LENGTH (0x3c000)
+
+#ifdef CRYPTO
+
+#define USER_PROGRAM_SIGNATURE_LENGTH (512)
+#define USER_PROGRAM_ENTRY (USER_PROGRAM_START + USER_PROGRAM_SIGNATURE_LENGTH)
+
+#else
+
+#define USER_PROGRAM_ENTRY (USER_PROGRAM_START)
+
+#endif
 
 #endif
