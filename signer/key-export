@@ -1,6 +1,23 @@
-#!/bin/bash
-(
-  echo 'unsigned char RSAKey[33 + 512 + 5] = {'
-  sed '1d;$d' public.pem | base64 -d | od -t x1 -An -v | tr '[a-f]' '[A-F]' | sed -e 's: :, 0x:g' -e 's:^,:   :' | sed 's:$:,:'
-  echo '};'
-) > ../rsa_key.c
+#!/usr/bin/python
+import base64
+
+data = None
+with open('public.pem', 'r') as f:
+    lines = [l.strip() for l in f.readlines()]
+    enc = ''.join(lines[1:-1])
+    data = base64.b64decode(enc)
+
+if not data:
+    print 'Data empty.'
+else:
+    with open('../rsa_key.c', 'w') as f:
+        f.write('unsigned char RSAKey[33 + 512 + 5] = {\n')
+        for i in xrange(len(data)):
+            if i % 16 == 0:
+                f.write('    ')
+            f.write('0x%02X,' % ord(data[i]))
+            if i % 16 == 15 or i == len(data) - 1:
+                f.write('\n')
+            else:
+                f.write(' ')
+        f.write('};\n')

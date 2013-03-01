@@ -37,7 +37,7 @@ char checkCryptoSignature()
 	UARTprintf("Checking digital signature ...\n\n");
 #endif
 
-	unsigned char *header = (unsigned char *)USER_PROGRAM_START;
+	unsigned char *header = (unsigned char *)UPLOAD_START;
 	if (header[0] != 'Z' || header[1] != '-') {
 #ifdef DEBUGUART
 	UARTprintf("Magic not found.\n\n");
@@ -55,7 +55,7 @@ char checkCryptoSignature()
 		return 0;
 	}
 
-	int check = RSAVerifySignature((unsigned char *)USER_PROGRAM_ENTRY, code_size, (unsigned char *)(USER_PROGRAM_ENTRY + code_size), sign_size);
+	int check = RSAVerifySignature((unsigned char *)UPLOAD_CODE_START, code_size, (unsigned char *)(UPLOAD_CODE_START + code_size), sign_size);
 	if (0 == check) {
 #ifdef DEBUGUART
 		UARTprintf("Digital signature OK\n\n");

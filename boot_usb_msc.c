@@ -97,7 +97,7 @@ void CallUserProgram()
 		ROM_GPIOPinWrite(GPIO_PORTF_BASE, LED_GREEN, LED_GREEN);
 		ROM_SysCtlDelay(ROM_SysCtlClockGet() / 4 / 8);
 		ROM_GPIOPinWrite(GPIO_PORTF_BASE, LED_GREEN, 0);
-		JumpToProgram(USER_PROGRAM_ENTRY);
+		JumpToProgram(UPLOAD_CODE_START);
 #ifdef CRYPTO
 	} else {
 		// Blink the red LED and halt if the crypto signature does not match
@@ -116,7 +116,7 @@ int main(void)
 {
 	// We are waking from hibernation, jump to the user program
 	if (HWREG(HIB_RIS) & HIBERNATE_INT_PIN_WAKE) {
-		JumpToProgram(USER_PROGRAM_ENTRY);
+		JumpToProgram(UPLOAD_CODE_START);
 	}
 
 	// Set the clocking

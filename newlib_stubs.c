@@ -32,7 +32,6 @@
 #undef errno
 extern int errno;
 
-
 /*
  environ
  A pointer to a list of environment variables and their values. 
@@ -40,15 +39,6 @@ extern int errno;
  */
 char *__env[1] = { 0 };
 char **environ = __env;
-
-
-
-void _exit(int status) {
-    _write(1, "exit", 4);
-    while (1) {
-        ;
-    }
-}
 
 int _close(int file) {
     return -1;
@@ -147,7 +137,7 @@ caddr_t _sbrk(int incr) {
 
   static char *heap_end;
   char *prev_heap_end;
-  extern char _estack;
+//  extern char _estack;
   extern char _sstack;
 
   if (heap_end == NULL) {
@@ -256,4 +246,11 @@ int _write(int file, char *ptr, int len) {
         return -1;
     }
     return len;
+}
+
+void _exit(int status) {
+    _write(1, "exit", 4);
+    while (1) {
+        ;
+    }
 }

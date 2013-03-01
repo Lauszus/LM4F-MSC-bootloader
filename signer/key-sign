@@ -1,6 +1,17 @@
-#!/bin/bash
+#!/usr/bin/python
+import subprocess
+import struct
+import os
 
-# TODO: rework
-
-#openssl dgst -sha256 -sign private.pem -out firmware.sig firmware.bin
-#cat firmware.bin >> firmware.sig
+sig = subprocess.check_output(['openssl', 'dgst', '-sha256', '-sign', 'private.pem', 'firmware.bin'])
+if len(sig) != 512:
+    print 'Got weird signature (does not have 512 bytes).'
+else:
+    with open('firmware.sig', 'wb') as f:
+        f.write('Z-')                                                 # magic
+        f.write(struct.pack('<I', os.path.getsize('firmware.bin')))   # code size
+        f.write(struct.pack('<H', len(sig)))                          # signature size
+        f.write('\x00' * 24)                                          # reserved
+        with open('firmware.bin', 'rb') as g:
+            f.write(g.read())
+        f.write(sig)

@@ -14,7 +14,7 @@ Format of firmware.sig
 ----------------------
 
 File consists of 3 parts:
-- header    (16 bytes)
+- header    (32 bytes)
 - code      (variable length)
 - signature (512 bytes)
 
@@ -25,4 +25,4 @@ Header:
  0x00  =  0 |  2  | magic (0x5A 0x2D = "Z-")
  0x02  =  2 |  4  | code size
  0x06  =  6 |  2  | signature size (should be 512)
- 0x08  =  8 |  8  | reserved for future use
+ 0x08  =  8 | 24  | reserved for future use

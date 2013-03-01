@@ -1,5 +1,30 @@
-#!/bin/bash
+#!/usr/bin/python
+import os
+import subprocess
+import struct
+import sys
+import tempfile
 
-# TODO: rework
+with open('firmware.sig', 'r') as f:
+    data = f.read()
+    if data[0] != 'Z' or data[1] != '-':
+        print 'Magic not found'
+        sys.exit(1)
+    code_size = struct.unpack('<I', data[2:6])[0]
+    sign_size = struct.unpack('<H', data[6:8])[0]
 
-# openssl dgst -sha256 -verify public.pem -signature <(head -c 512 firmware.sig) <(tail -c +513 firmware.sig)
+    code_file = tempfile.NamedTemporaryFile(delete = False)
+    code_file.write(data[32: 32 + code_size])
+    code_file.close()
+
+    sign_file = tempfile.NamedTemporaryFile(delete = False)
+    sign_file.write(data[32 + code_size: 32 + code_size + sign_size])
+    sign_file.close()
+
+    try:
+        subprocess.check_call(['openssl', 'dgst', '-sha256', '-verify', 'public.pem', '-signature', sign_file.name, code_file.name])
+    except:
+        pass
+
+    os.unlink(code_file.name)
+    os.unlink(sign_file.name)

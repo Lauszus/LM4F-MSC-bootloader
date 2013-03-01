@@ -149,7 +149,7 @@ unsigned char dirEntry[] = {
 	0xce, 0x01,                             // Last write time
 	0x86, 0x41,                             // Last write date
 	WBVAL(FIRMWARE_BIN_CLUSTER),            // Starting cluster
-	QBVAL(USER_PROGRAM_LENGTH)              // File size in bytes
+	QBVAL(UPLOAD_LENGTH)                    // File size in bytes
 };
 
 void *massStorageOpen(unsigned long drive)
@@ -187,7 +187,7 @@ unsigned long massStorageRead(void *drive, unsigned char *data, unsigned long bl
 			data[i] = dirEntry[i];
 		}
 	}
-	else if (blockNumber >= FIRMWARE_START_SECTOR && blockNumber < FIRMWARE_START_SECTOR + USER_PROGRAM_LENGTH / BLOCK_SIZE) {
+	else if (blockNumber >= FIRMWARE_START_SECTOR && blockNumber < FIRMWARE_START_SECTOR + UPLOAD_LENGTH / BLOCK_SIZE) {
 #ifdef NOREAD
 		unsigned char dummy[] = "READ DISABLED   ";
 		for (int i = 0; i < BLOCK_SIZE; i++) {
@@ -195,7 +195,7 @@ unsigned long massStorageRead(void *drive, unsigned char *data, unsigned long bl
 		}
 #else
 		for (int i = 0; i < BLOCK_SIZE; i++) {
-			data[i] = ((unsigned char *)(USER_PROGRAM_START + (blockNumber - FIRMWARE_START_SECTOR) * BLOCK_SIZE))[i];
+			data[i] = ((unsigned char *)(UPLOAD_START + (blockNumber - FIRMWARE_START_SECTOR) * BLOCK_SIZE))[i];
 		}
 #endif
 	}
@@ -236,12 +236,12 @@ unsigned long massStorageWrite(void *drive, unsigned char *data, unsigned long b
 			firmware_start_cluster = (blockNumber - DATA_REGION_SECTOR) / SECTORS_PER_CLUSTER + 2;
 		}
 		// new firmware is being uploaded
-		if (blockNumber < FIRMWARE_START_SECTOR + USER_PROGRAM_LENGTH / BLOCK_SIZE) {
-			unsigned long address = (blockNumber - FIRMWARE_START_SECTOR) * BLOCK_SIZE + USER_PROGRAM_START;
+		if (blockNumber < FIRMWARE_START_SECTOR + UPLOAD_LENGTH / BLOCK_SIZE) {
+			unsigned long address = (blockNumber - FIRMWARE_START_SECTOR) * BLOCK_SIZE + UPLOAD_START;
 			// erase
 			if (blockNumber == FIRMWARE_START_SECTOR) {
-				for (int counter = 0; counter < USER_PROGRAM_LENGTH / 1024; counter++) {
-					FlashErase(USER_PROGRAM_START + counter * 1024);
+				for (int counter = 0; counter < UPLOAD_LENGTH / 1024; counter++) {
+					FlashErase(UPLOAD_START + counter * 1024);
 				}
 			}
 			FlashProgram((unsigned long *)data, address, BLOCK_SIZE * numberOfBlocks);
