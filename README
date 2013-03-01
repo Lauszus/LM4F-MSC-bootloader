@@ -1,7 +1,14 @@
-This is a mass storage bootloader for the Stellaris Launchpad and other Stellaris chips.
-Inspired by, and similar in use to, the bootloader found on some NXP LPC chips.
+LM4F-MSC-bootloader
+===================
+
+A mass storage bootloader for the Stellaris Launchpad and other Texas Instruments LM4F chips.
+
+It is inspired by, and similar in use to, the bootloader found on some NXP LPC chips.
+
 It appears as a regular external drive (formatted with FAT12) when plugged into a PC, no drivers or custom software needed!
+
 It takes up 16kB of flash memory.
+
 Bootloader is entered when SW2 button is pressed during reset.
 REMEMBER TO EDIT YOUR PROGRAM'S LINKER SCRIPT TO START THE CODE AT ADDRESS 0x4000
 
@@ -13,23 +20,16 @@ INSTALLATION:
 * Run make
 * Flash gcc/boot_usb_msc.bin onto your Launchpad or other Stellaris board
 
-or just use an already built firmware from the "prebuilt" directory
-(Built using YAGARTO GCC 4.6.0)
-
 HOW TO USE:
 
-* Edit the linker script of the firmware you want to flash using the bootloader, so that the code starts at address 0x4000.
+* Edit the linker script of the firmware you want to flash using the bootloader, so that the code starts at address 0x6000.
   usually it means you have to find this in projectname.ld:
 
     FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x00040000
 
   and change it to:
 
-    FLASH (rx) : ORIGIN = 0x00004000, LENGTH = 0x0003c000
-
-  or to (if crypto signatures are enabled):
-
-    FLASH (rx) : ORIGIN = 0x00004200, LENGTH = 0x0003be00
+    FLASH (rx) : ORIGIN = 0x00006000, LENGTH = 0x0003a000
 
   then rebuild your project
 
@@ -42,20 +42,6 @@ HOW TO USE:
 
 * Safely eject the drive and reset your board, it should jump to your code immediately
 
-UPDATES:
-
-08/12/2012 - Added debug mode that prints out info about reads and writes using UART, to enable it look in the Makefile.
-Fixed problem when using Thunar to upload firmware, as a side effect you no longer have to name your file firmware.bin.
-
-09/12/2012 - Added prebuilt bin files, so you can use the bootloader straight away!
-
 KNOWN ISSUES:
 
 * On Linux, ejecting the drive will show an error, but that doesn't break anything
-
-Makefile, linker and startup code by Mauro Scomparin and others https://github.com/scompo/stellaris-launchpad-template-gcc
-
-SHA-2 code by Aaron D. Gifford - http://www.aarongifford.com/, released under BSD License.
-
-Original code is Copyright 2012 Andrzej Surowiec <emeryth@gmail.com>, released under MIT License.
-http://emerythacks.blogspot.com/

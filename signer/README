@@ -1,0 +1,28 @@
+Crypto-signing the firmware
+===========================
+
+* Generate your keypair with key-generate
+  - will ask for password 3 times
+* Copy your firmware (firmware.bin) here
+* Run key-sign to sign the firmware
+  - will create firmware.sig which is the signed firmware - see below
+* Verify the signature with key-verify
+* Run key-export which will generate ../rsa_key.c source file needed to build
+  crypto-enabled bootloader.
+
+Format of firmware.sig
+----------------------
+
+File consists of 3 parts:
+- header    (16 bytes)
+- code      (variable length)
+- signature (512 bytes)
+
+Header:
+
+   offset   | len | meaning
+------------+-----+--------------------------------
+ 0x00  =  0 |  2  | magic (0x5A 0x2D = "Z-")
+ 0x02  =  2 |  4  | code size
+ 0x06  =  6 |  2  | signature size (should be 512)
+ 0x08  =  8 |  8  | reserved for future use

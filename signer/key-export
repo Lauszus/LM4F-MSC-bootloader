@@ -1,0 +1,6 @@
+#!/bin/bash
+(
+  echo 'unsigned char RSAKey[33 + 512 + 5] = {'
+  sed '1d;$d' public.pem | base64 -d | od -t x1 -An -v | tr '[a-f]' '[A-F]' | sed -e 's: :, 0x:g' -e 's:^,:   :' | sed 's:$:,:'
+  echo '};'
+) > ../rsa_key.c

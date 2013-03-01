@@ -1,2 +1,5 @@
 #!/bin/bash
-openssl rsautl -verify -in <(head -c 512 firmware.sig) -inkey public.pem -pubin
+
+# TODO: rework
+
+# openssl dgst -sha256 -verify public.pem -signature <(head -c 512 firmware.sig) <(tail -c +513 firmware.sig)

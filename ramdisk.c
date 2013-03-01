@@ -31,7 +31,7 @@
 #include "inc/hw_types.h"
 #include "driverlib/flash.h"
 
-#ifdef DEBUG
+#ifdef DEBUGUART
 #include "utils/uartstdio.h"
 #endif
 
@@ -149,7 +149,7 @@ unsigned char dirEntry[] = {
 	0xce, 0x01,                             // Last write time
 	0x86, 0x41,                             // Last write date
 	WBVAL(FIRMWARE_BIN_CLUSTER),            // Starting cluster
-	QBVAL(USER_PROGRAM_LENGTH)              // File size in bytes (240 * 1024 = 245760)
+	QBVAL(USER_PROGRAM_LENGTH)              // File size in bytes
 };
 
 void *massStorageOpen(unsigned long drive)
@@ -163,7 +163,7 @@ void massStorageClose(void *drive)
 
 unsigned long massStorageRead(void *drive, unsigned char *data, unsigned long blockNumber, unsigned long numberOfBlocks)
 {
-#ifdef DEBUG
+#ifdef DEBUGUART
 	UARTprintf("Reading %d block(s) starting at %d\n", numberOfBlocks, blockNumber);
 #endif
 	for (int i = 0; i < BLOCK_SIZE; i++) {
@@ -204,7 +204,7 @@ unsigned long massStorageRead(void *drive, unsigned char *data, unsigned long bl
 
 unsigned long massStorageWrite(void *drive, unsigned char *data, unsigned long blockNumber, unsigned long numberOfBlocks)
 {
-#ifdef DEBUG
+#ifdef DEBUGUART
 	UARTprintf("Writing %d block(s) starting at %d\n", numberOfBlocks, blockNumber);
 	UARTprintf("Firmware start cluster: %d\n", firmware_start_cluster);
 	for (int j = 0; j < BLOCK_SIZE * numberOfBlocks; j += 16) {

@@ -1,6 +1,6 @@
 #!/bin/bash
-SIZE=$(stat -c '%s' firmware.bin)
-HASH=$( sha256sum firmware.bin | cut -f 1 -d ' ')
 
-echo $HASH $SIZE | openssl rsautl -sign -inkey private.pem > firmware.sig
-cat firmware.bin >> firmware.sig
+# TODO: rework
+
+#openssl dgst -sha256 -sign private.pem -out firmware.sig firmware.bin
+#cat firmware.bin >> firmware.sig

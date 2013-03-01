@@ -89,9 +89,14 @@ void CallUserProgram()
 #ifdef CRYPTO
 	if (checkCryptoSignature()) {
 #endif
-#ifdef DEBUG
-#endif
+#ifdef DEBUGUART
 		UARTprintf("Jumping to user program.\n\n");
+#endif
+		// Shortly blink with green LED to indicate that signature is OK
+		ROM_GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, LED_GREEN);
+		ROM_GPIOPinWrite(GPIO_PORTF_BASE, LED_GREEN, LED_GREEN);
+		ROM_SysCtlDelay(ROM_SysCtlClockGet() / 4 / 8);
+		ROM_GPIOPinWrite(GPIO_PORTF_BASE, LED_GREEN, 0);
 		JumpToProgram(USER_PROGRAM_ENTRY);
 #ifdef CRYPTO
 	} else {
@@ -117,7 +122,7 @@ int main(void)
 	// Set the clocking
 	ROM_SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_XTAL_16MHZ | SYSCTL_OSC_MAIN);
 
-#ifdef DEBUG
+#ifdef DEBUGUART
 	// In debug mode, the bootloader prints out debug info via UART
 	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
 	ROM_GPIOPinConfigure(GPIO_PA0_U0RX);
@@ -165,16 +170,16 @@ int main(void)
 	// Pass our device information to the USB library and place the device on the bus
 	USBDMSCInit(0, (tUSBDMSCDevice*)&massStorageDevice);
 
-#ifdef DEBUG
+#ifdef DEBUGUART
 	UARTprintf("Bootloader started\n\n");
 #endif
 
-	ROM_GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, LED_GREEN);
+	ROM_GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, LED_BLUE);
 	while(1) {
-		// Blink the green LED so the user knows we're in a bootloader mode
-		ROM_GPIOPinWrite(GPIO_PORTF_BASE, LED_GREEN, LED_GREEN);
+		// Blink the blue LED so the user knows we're in a bootloader mode
+		ROM_GPIOPinWrite(GPIO_PORTF_BASE, LED_BLUE, LED_BLUE);
 		ROM_SysCtlDelay(ROM_SysCtlClockGet() / 4 / 2);
-		ROM_GPIOPinWrite(GPIO_PORTF_BASE, LED_GREEN, 0);
+		ROM_GPIOPinWrite(GPIO_PORTF_BASE, LED_BLUE, 0);
 		ROM_SysCtlDelay(ROM_SysCtlClockGet() / 4 / 2);
 	}
 }

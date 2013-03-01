@@ -1,12 +1,12 @@
 /*
- * Thumb2 Newlib Toolchain example project
- * Written by Elias Önal <EliasOenal@gmail.com>, released as public domain.
+Thumb2 Newlib Toolchain example project
+Written by Elias Önal <EliasOenal@gmail.com>, released as public domain.
 
- * This is a minimal linkerscript that should be easy to port to new microcontrollers.
- * At this point it supports only C and will lead to weird behavior when used for C++.
- */
+This is a minimal linkerscript that should be easy to port to new microcontrollers.
+At this point it supports only C and will lead to weird behavior when used for C++.
+*/
 
-ENTRY(ResetISR)
+ENTRY(rst_handler)
 
 MEMORY
 {

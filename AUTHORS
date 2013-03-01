@@ -1,0 +1,24 @@
+Elias Önal, Mauro Scomparin and Mark Roy
+- Makefile, linker and startup code
+- released under BSD License
+- https://github.com/scompo/stellaris-launchpad-template-gcc
+
+Simon Tatham
+- RSA and SHA-256 code
+- Copyright 1997-2011, released under MIT License
+- http://www.chiark.greenend.org.uk/~sgtatham/putty/
+
+Michael J. Fromberger
+- IMath arbitrary precision integer arithmetic
+- Copyright 2002-2009, released under MIT License
+- https://github.com/creachadair/imath
+
+Andrzej Surowiec
+- Original bootloader code
+- Copyright 2012, released under MIT License
+- https://github.com/Emeryth/Stellaris-mass-storage-bootloader
+
+Pavol Rusnak
+- Current bootloader code, write-only option, crypto-signing the firmware
+- Copyright 2013, released under MIT License
+- https://github.com/fabhack/LM4F-MSC-bootloader

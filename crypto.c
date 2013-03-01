@@ -23,18 +23,48 @@
  */
 
 #include "crypto.h"
+#include "rsa.h"
+#include "common.h"
 
-#ifdef DEBUG
+#ifdef DEBUGUART
 #include "utils/uartstdio.h"
 #endif
 
 char checkCryptoSignature()
 {
-	UARTprintf("Checking ditigal signature ...\n\n");
 
-//	UARTprintf("Digital signature BAD\n\n");
-//	return 0;
+#ifdef DEBUGUART
+	UARTprintf("Checking digital signature ...\n\n");
+#endif
 
-	UARTprintf("Digital signature OK\n\n");
-	return 1;
+	unsigned char *header = (unsigned char *)USER_PROGRAM_START;
+	if (header[0] != 'Z' || header[1] != '-') {
+#ifdef DEBUGUART
+	UARTprintf("Magic not found.\n\n");
+#endif
+		return 0;
+	}
+
+	unsigned int code_size = header[2] + (header[3] << 8) + (header[4] << 16) + (header[5] << 24);
+	unsigned int sign_size = header[6] + (header[7] << 8);
+
+	if (sign_size != 512) {
+#ifdef DEBUGUART
+	UARTprintf("Signature does not have 512 bytes.\n\n");
+#endif
+		return 0;
+	}
+
+	int check = RSAVerifySignature((unsigned char *)USER_PROGRAM_ENTRY, code_size, (unsigned char *)(USER_PROGRAM_ENTRY + code_size), sign_size);
+	if (0 == check) {
+#ifdef DEBUGUART
+		UARTprintf("Digital signature OK\n\n");
+#endif
+		return 1;
+	} else {
+#ifdef DEBUGUART
+		UARTprintf("Digital signature BAD (error %d)\n\n", check);
+#endif
+		return 0;
+	}
 }

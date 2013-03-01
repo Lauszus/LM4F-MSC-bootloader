@@ -57,16 +57,22 @@ OD      = ${PREFIX_ARM}-objdump
 # Option arguments for C compiler.
 CFLAGS=-mthumb ${CPU} ${FPU} -Os -ffunction-sections -fdata-sections -MD -std=c99 -Wall -pedantic -c -g
 # Library stuff passed as flags!
-CFLAGS+= -I ${STELLARISWARE_PATH} -DPART_$(PART) -c -DTARGET_IS_BLIZZARD_RA1 -Dgcc -DSHA2_USE_INTTYPES_H
+CFLAGS+= -I ${STELLARISWARE_PATH} -DPART_$(PART) -c -DTARGET_IS_BLIZZARD_RA1 -Dgcc
 
-# Uncomment this to enable debug via UART
-# CFLAGS+= -DDEBUG
+# Set this to enable debug via UART
+ifeq ($(DEBUGUART),1)
+CFLAGS+= -DDEBUGUART
+endif
 
-# Uncomment this to disable firmware dumping (i.e. reading via MSC)
-# CFLAGS+= -DNOREAD
+# Set this to disable firmware dumping (i.e. reading via MSC)
+ifeq ($(NOREAD),1)
+CFLAGS+= -DNOREAD
+endif
 
-# Uncomment this to enable check at start whether the firmware has been cryptographically signed
-# CFLAGS+= -DCRYPTO
+# Set this to enable check at start whether the firmware has been cryptographically signed
+ifeq ($(CRYPTO),1)
+CFLAGS+= -DCRYPTO
+endif
 
 # Flags for LD
 LFLAGS  = --gc-sections
@@ -102,8 +108,14 @@ STARTUP_FILE = LM4F_startup
 # Linker file name
 LINKER_FILE = LM4F.ld
 
-SRC = $(wildcard *.c)
+
+SRC = boot_usb_msc.c LM4F_startup.c ramdisk.c usb_config.c
+ifeq ($(DEBUGUART),1)
 SRC += ${STELLARISWARE_PATH}/utils/uartstdio.c
+endif
+ifeq ($(CRYPTO),1)
+SRC += crypto.c imath.c newlib_stubs.c rsa.c rsa_key.c sha256.c
+endif
 OBJS = $(SRC:.c=.o)
 
 #==============================================================================
