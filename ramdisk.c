@@ -22,6 +22,9 @@
  *
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+
 #include "ramdisk.h"
 #include "common.h"
 
@@ -159,6 +162,9 @@ void *massStorageOpen(unsigned long drive)
 
 void massStorageClose(void *drive)
 {
+#ifdef DEBUGUART
+    UARTprintf("massStorageClose\n");
+#endif
 }
 
 unsigned long massStorageRead(void *drive, unsigned char *data, unsigned long blockNumber, unsigned long numberOfBlocks)

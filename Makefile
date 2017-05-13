@@ -32,18 +32,25 @@
 #           Cross compiling toolchain / tools specifications
 #==============================================================================
 
+DEBUGUART ?= 1
+NOREAD ?= 0
+CRYPTO ?= 0
+
 # Prefix for the arm-eabi-none toolchain.
 # I'm using codesourcery g++ lite compilers available here:
 # http://www.mentor.com/embedded-software/sourcery-tools/sourcery-codebench/editions/lite-edition/
 PREFIX_ARM = arm-none-eabi
 
 # Microcontroller properties.
-PART=LM4F120H5QR
+#PART=LM4F120H5QR
+PART=TM4C123GH6PM
+#TARGET=TARGET_IS_BLIZZARD_RA1
+TARGET=TARGET_IS_BLIZZARD_RB1
 CPU=-mcpu=cortex-m4
-FPU=-mfpu=fpv4-sp-d16 -mfloat-abi=softfp
+FPU=-mfpu=fpv4-sp-d16 -mfloat-abi=hard
 
 # Stellarisware path
-STELLARISWARE_PATH=../../..
+STELLARISWARE_PATH=../TivaWare_C_Series-2.1.4.178
 
 # Program name definition for ARM GNU C compiler.
 CC      = ${PREFIX_ARM}-gcc
@@ -55,13 +62,18 @@ CP      = ${PREFIX_ARM}-objcopy
 OD      = ${PREFIX_ARM}-objdump
 
 # Option arguments for C compiler.
-CFLAGS=-mthumb ${CPU} ${FPU} -Os -ffunction-sections -fdata-sections -MD -std=c99 -Wall -pedantic -c -g
+CFLAGS=-mthumb ${CPU} ${FPU} -ffunction-sections -fdata-sections -MD -std=c99 -Wall -pedantic -c -g
+ifdef DEBUG
+CFLAGS+=-DDEBUG -O0
+else
+CFLAGS+=-Os
+endif
 # Library stuff passed as flags!
-CFLAGS+= -I ${STELLARISWARE_PATH} -DPART_$(PART) -c -DTARGET_IS_BLIZZARD_RA1 -Dgcc
+CFLAGS+= -I ${STELLARISWARE_PATH} -DPART_$(PART) -c -D$(TARGET) -Dgcc
 
 # Set this to enable debug via UART
 ifeq ($(DEBUGUART),1)
-CFLAGS+= -DDEBUGUART
+CFLAGS+= -DDEBUGUART -DUART_BUFFERED
 endif
 
 # Set this to disable firmware dumping (i.e. reading via MSC)
@@ -139,7 +151,7 @@ ${PROJECT_NAME}.axf: $(OBJS)
 	$(MAKE) -C ${STELLARISWARE_PATH}/usblib/
 	@echo
 	@echo Linking...
-	$(LD) -T $(LINKER_FILE) $(LFLAGS) -o ${PROJECT_NAME}.axf $(OBJS) ${STELLARISWARE_PATH}/usblib/gcc-cm4f/libusb-cm4f.a ${STELLARISWARE_PATH}/driverlib/gcc-cm4f/libdriver-cm4f.a $(LIBM_PATH) $(LIBC_PATH) $(LIB_GCC_PATH)
+	$(LD) -T $(LINKER_FILE) $(LFLAGS) -o ${PROJECT_NAME}.axf $(OBJS) ${STELLARISWARE_PATH}/usblib/gcc/libusb.a ${STELLARISWARE_PATH}/driverlib/gcc/libdriver.a $(LIBM_PATH) $(LIBC_PATH) $(LIB_GCC_PATH)
 
 ${PROJECT_NAME}: ${PROJECT_NAME}.axf
 	@echo
@@ -155,8 +167,12 @@ ${PROJECT_NAME}: ${PROJECT_NAME}.axf
 # make clean rule
 clean:
 	rm -f *.bin *.o *.d *.axf *.lst
+	$(MAKE) -C ${STELLARISWARE_PATH}/driverlib clean
+	$(MAKE) -C ${STELLARISWARE_PATH}/usblib clean
 
 # Rule to load the project to the board
-# I added a sudo because it's needed without a rule.
-load:
-	sudo ${FLASHER} ${FLASHER_FLAGS} ${PROJECT_NAME}.bin
+flash: all
+	${FLASHER} ${FLASHER_FLAGS} ${PROJECT_NAME}.bin
+
+# Rebuild everything when makefile changes.
+$(OBJS): Makefile

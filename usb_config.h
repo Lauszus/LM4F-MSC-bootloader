@@ -25,7 +25,7 @@
 #ifndef __USB_CONFIG_H__
 #define __USB_CONFIG_H__
 
-extern const tUSBDMSCDevice massStorageDevice;
-extern unsigned long massStorageEventCallback(void* callback, unsigned long event, unsigned long messageParameters, void* messageData);
+extern tUSBDMSCDevice massStorageDevice;
+extern uint32_t massStorageEventCallback(void* callback, unsigned long event, unsigned long messageParameters, void* messageData);
 
 #endif

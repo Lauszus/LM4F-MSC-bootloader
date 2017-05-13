@@ -1,65 +1,57 @@
-/*
-Thumb2 Newlib Toolchain example project
-Written by Elias Önal <EliasOenal@gmail.com>, released as public domain.
-
-This is a minimal linkerscript that should be easy to port to new microcontrollers.
-At this point it supports only C and will lead to weird behavior when used for C++.
-*/
-
-ENTRY(rst_handler)
+/******************************************************************************
+ *
+ * usb_dev_msc.ld - Linker configuration file for usb_dev_msc.
+ *
+ * Copyright (c) 2012-2014 Texas Instruments Incorporated.  All rights reserved.
+ * Software License Agreement
+ *
+ * Texas Instruments (TI) is supplying this software for use solely and
+ * exclusively on TI's microcontroller products. The software is owned by
+ * TI and/or its suppliers, and is protected under applicable copyright
+ * laws. You may not combine this software with "viral" open-source
+ * software in order to form a larger program.
+ *
+ * THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+ * NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+ * NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+ * CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+ * DAMAGES, FOR ANY REASON WHATSOEVER.
+ *
+ * This is part of revision 2.1.0.12573 of the DK-TM4C123G Firmware Package.
+ *
+ *****************************************************************************/
 
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x0000000, LENGTH = 0x00040000
-  RAM (xrw) : ORIGIN = 0x20000000, LENGTH = 0x00008000
+    FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x00040000
+    SRAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00008000
 }
 
-_estack = 0x20008000; /* Upper stack boundary */
-_sstack = (_estack - 512); /* Lower stack boundary */
+SECTIONS
+{
+    .text :
+    {
+        _text = .;
+        KEEP(*(.isr_vector))
+        *(.text*)
+        *(.rodata*)
+        _etext = .;
+    } > FLASH
 
-SECTIONS {
-  .isr_vector :
-  {
-    . = ALIGN(4);
-          KEEP(*(.isr_vector))
-    . = ALIGN(4);
-  } >FLASH
+    .data : AT(ADDR(.text) + SIZEOF(.text))
+    {
+        _data = .;
+        *(vtable)
+        *(.data*)
+        _edata = .;
+    } > SRAM
 
-  .text :
-  {
-    . = ALIGN(4);
-    *(.text)
-    *(.text.*)
-    *(.rodata)
-    *(.rodata.*)
-    . = ALIGN(4);
-      _etext = .;
-      _sidata = _etext;
-  } > FLASH
-
-  .data : AT ( _sidata )
-  {
-    . = ALIGN(4);
-          _sdata = . ;
-          _data = . ;
-    *(.data)
-    *(.data.*)
-    . = ALIGN(4);
-    _edata = . ;
-  } >RAM
-
-  .bss :
-  {
-    . = ALIGN(4);
-    _sbss = .;
-    _bss = .;
-    *(.bss)
-    *(.bss.*)
-    . = ALIGN(4);
-      _ebss = . ;
-  } >RAM
+    .bss :
+    {
+        _bss = .;
+        *(.bss*)
+        *(COMMON)
+        _ebss = .;
+    } > SRAM
 }
-
-. = ALIGN(4);
-end = .;
-_end = .;

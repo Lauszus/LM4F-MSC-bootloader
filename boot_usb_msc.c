@@ -22,6 +22,9 @@
  *
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+
 #include "inc/hw_ints.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
@@ -53,7 +56,7 @@
 
 tDMAControlTable uDMAControlTable[64] __attribute__ ((aligned(1024)));
 
-unsigned long massStorageEventCallback(void* callback, unsigned long event, unsigned long messageParameters, void* messageData)
+uint32_t massStorageEventCallback(void* callback, uint32_t event, uint32_t messageParameters, void* messageData)
 {
 	switch(event) {
 		case USBD_MSC_EVENT_WRITING:
@@ -82,7 +85,6 @@ JumpToProgram(unsigned long ulStartAddr)
 	__asm("    ldr     r0, [r0, #4]\n"
 	      "    bx      r0\n");
 }
-
 
 void CallUserProgram()
 {
@@ -119,8 +121,8 @@ int main(void)
 		JumpToProgram(UPLOAD_CODE_START);
 	}
 
-	// Set the clocking
-	ROM_SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_XTAL_16MHZ | SYSCTL_OSC_MAIN);
+	// Set the clocking to run directly from the external crystal/oscillator and use PLL to run at 80 MHz
+    ROM_SysCtlClockSet(SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN | SYSCTL_XTAL_16MHZ); // Set clock to 80 MHz (400 MHz(PLL) / 2 / 2.5 = 80 MHz)
 
 #ifdef DEBUGUART
 	// In debug mode, the bootloader prints out debug info via UART
@@ -128,14 +130,15 @@ int main(void)
 	ROM_GPIOPinConfigure(GPIO_PA0_U0RX);
 	ROM_GPIOPinConfigure(GPIO_PA1_U0TX);
 	ROM_GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
-	UARTStdioInit(0);
+	UARTStdioConfig(0, 115200, SysCtlClockGet()); // Mode is set to 8N1 on UART1
+    UARTEchoSet(false);
 #endif
 
 	// Setup GPIO for buttons
 	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
-	HWREG(GPIO_PORTF_BASE + GPIO_O_LOCK) = GPIO_LOCK_KEY_DD;
-	HWREG(GPIO_PORTF_BASE + GPIO_O_CR) |= 0x01;
-	HWREG(GPIO_PORTF_BASE + GPIO_O_LOCK) = 0;
+    HWREG(GPIO_PORTF_BASE + GPIO_O_LOCK) = GPIO_LOCK_KEY; // Unlocks the GPIO_CR register
+    HWREG(GPIO_PORTF_BASE + GPIO_O_CR) |= GPIO_PIN_0; // Allow changes to PF0
+    HWREG(GPIO_PORTF_BASE + GPIO_O_LOCK) = 0; // Lock register again
 
 	ROM_GPIODirModeSet(GPIO_PORTF_BASE, BTN_LEFT,  GPIO_DIR_MODE_IN);
 	ROM_GPIODirModeSet(GPIO_PORTF_BASE, BTN_RIGHT, GPIO_DIR_MODE_IN);
@@ -160,15 +163,19 @@ int main(void)
 	ROM_uDMAControlBaseSet(&uDMAControlTable[0]);
 	ROM_uDMAEnable();
 
+    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_USB0);
+
 	// Configure the required pins for USB operation
 	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
 	ROM_GPIOPinTypeUSBAnalog(GPIO_PORTD_BASE, GPIO_PIN_5 | GPIO_PIN_4);
 
-	// Set the USB stack mode to Device mode with VBUS monitoring.
-	USBStackModeSet(0, USB_MODE_DEVICE, 0);
+	// http://forum.43oh.com/topic/7266-enable-usb-device-on-tiva-c-tm4c123g
+    // Set the USB stack mode to Device mode with VBUS monitoring.
+    //USBStackModeSet(0, eUSBModeDevice, 0);
+	USBStackModeSet(0, eUSBModeForceDevice, 0);
 
 	// Pass our device information to the USB library and place the device on the bus
-	USBDMSCInit(0, (tUSBDMSCDevice*)&massStorageDevice);
+	USBDMSCInit(0, &massStorageDevice);
 
 #ifdef DEBUGUART
 	UARTprintf("Bootloader started\n\n");

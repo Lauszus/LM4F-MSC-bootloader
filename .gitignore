@@ -4,3 +4,6 @@
 *.lst
 *.o
 rsa_key.c
+*.cproject
+*.project
+*.settings/
