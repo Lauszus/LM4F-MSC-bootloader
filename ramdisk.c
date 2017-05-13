@@ -150,6 +150,13 @@ unsigned char fatTable[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
+#define FIRMWARE_DATE_TIME (((2017 - 1980) << 25) /* Year since 1080 */ | \
+                            (5 << 21)             /* Month (1-12) */    | \
+                            (14 << 16)            /* Day (1-31) */      | \
+                            (23 << 11)            /* Hour (0-23) */     | \
+                            (15 << 5)             /* Minute (0-59) */   | \
+                            (0 >> 1))             /* Seconds (Divided by 2) */
+
 unsigned char dirEntry[] = {
 	// A long filename entry for firmware.bin
 	0x41,                                                             // Sequence number
@@ -177,12 +184,10 @@ unsigned char dirEntry[] = {
 	0x20,                                   // Attribute byte
 	0x00,                                   // Reserved for Windows NT
 	0x00,                                   // Creation millisecond
-	0xce, 0x01,                             // Creation time
-	0x86, 0x41,                             // Creation date
-	0x86, 0x41,                             // Last access date
+	QBVAL(FIRMWARE_DATE_TIME),              // Creation date and time
+	WBVAL(FIRMWARE_DATE_TIME >> 16),        // Last access date
 	0x00, 0x00,                             // Reserved for FAT32
-	0xce, 0x01,                             // Last write time
-	0x86, 0x41,                             // Last write date
+	QBVAL(FIRMWARE_DATE_TIME),              // Creation date and time
 	WBVAL(FIRMWARE_BIN_CLUSTER),            // Starting cluster
 	QBVAL(UPLOAD_LENGTH)                    // File size in bytes
 };
