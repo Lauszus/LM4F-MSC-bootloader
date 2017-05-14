@@ -22,3 +22,8 @@ Pavol Rusnak
 - Current bootloader code, write-only option, crypto-signing the firmware
 - Copyright 2013, released under MIT License
 - https://github.com/fabhack/LM4F-MSC-bootloader
+
+Kristian Sloth Lauszus
+- Ported to Tiva TM4C123GXL LaunchPad, now works on Mac
+- Copyright 2017, released under MIT License
+- https://github.com/Lauszus/TM4C-MSC-bootloader
