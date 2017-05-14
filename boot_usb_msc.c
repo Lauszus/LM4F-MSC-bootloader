@@ -95,19 +95,19 @@ void CallUserProgram()
 		UARTprintf("Jumping to user program.\n\n");
 #endif
 		// Shortly blink with green LED to indicate that signature is OK
-		ROM_GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, LED_GREEN);
-		ROM_GPIOPinWrite(GPIO_PORTF_BASE, LED_GREEN, LED_GREEN);
+		ROM_GPIOPinTypeGPIOOutput(LED_GPIO_BASE, LED_GREEN);
+		ROM_GPIOPinWrite(LED_GPIO_BASE, LED_GREEN, LED_GREEN);
 		ROM_SysCtlDelay(ROM_SysCtlClockGet() / 4 / 8);
-		ROM_GPIOPinWrite(GPIO_PORTF_BASE, LED_GREEN, 0);
+		ROM_GPIOPinWrite(LED_GPIO_BASE, LED_GREEN, 0);
 		JumpToProgram(UPLOAD_CODE_START);
 #ifdef CRYPTO
 	} else {
 		// Blink the red LED and halt if the crypto signature does not match
-		ROM_GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, LED_RED);
+		ROM_GPIOPinTypeGPIOOutput(LED_GPIO_BASE, LED_RED);
 		while (1) {
-			ROM_GPIOPinWrite(GPIO_PORTF_BASE, LED_RED, LED_RED);
+			ROM_GPIOPinWrite(LED_GPIO_BASE, LED_RED, LED_RED);
 			ROM_SysCtlDelay(ROM_SysCtlClockGet() / 4 / 4);
-			ROM_GPIOPinWrite(GPIO_PORTF_BASE, LED_RED, 0);
+			ROM_GPIOPinWrite(LED_GPIO_BASE, LED_RED, 0);
 			ROM_SysCtlDelay(ROM_SysCtlClockGet() / 4 / 4);
 		}
 	}
@@ -117,9 +117,8 @@ void CallUserProgram()
 int main(void)
 {
 	// We are waking from hibernation, jump to the user program
-	if (HWREG(HIB_RIS) & HIBERNATE_INT_PIN_WAKE) {
-		JumpToProgram(UPLOAD_CODE_START);
-	}
+	if (HWREG(HIB_RIS) & HIBERNATE_INT_PIN_WAKE)
+	    JumpToProgram(UPLOAD_CODE_START);
 
 	// Set the clocking to run directly from the external crystal/oscillator and use PLL to run at 80 MHz
     ROM_SysCtlClockSet(SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN | SYSCTL_XTAL_16MHZ); // Set clock to 80 MHz (400 MHz(PLL) / 2 / 2.5 = 80 MHz)
@@ -134,21 +133,22 @@ int main(void)
     UARTEchoSet(false);
 #endif
 
-	// Setup GPIO for buttons
-	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+    // Setup GPIO for buttons
+    ROM_SysCtlPeripheralEnable(LED_GPIO_PERIPH);
+    ROM_SysCtlPeripheralEnable(BTN_GPIO_PERIPH);
+
+#if BTN_GPIO_PERIPH == SYSCTL_PERIPH_GPIOF && (BTN_LEFT == GPIO_PIN_0 || BTN_RIGHT == GPIO_PIN_0)
     HWREG(GPIO_PORTF_BASE + GPIO_O_LOCK) = GPIO_LOCK_KEY; // Unlocks the GPIO_CR register
     HWREG(GPIO_PORTF_BASE + GPIO_O_CR) |= GPIO_PIN_0; // Allow changes to PF0
     HWREG(GPIO_PORTF_BASE + GPIO_O_LOCK) = 0; // Lock register again
+#endif
 
-	ROM_GPIODirModeSet(GPIO_PORTF_BASE, BTN_LEFT,  GPIO_DIR_MODE_IN);
-	ROM_GPIODirModeSet(GPIO_PORTF_BASE, BTN_RIGHT, GPIO_DIR_MODE_IN);
-	ROM_GPIOPadConfigSet(GPIO_PORTF_BASE, BTN_LEFT,  GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
-	ROM_GPIOPadConfigSet(GPIO_PORTF_BASE, BTN_RIGHT, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
+	ROM_GPIODirModeSet(BTN_GPIO_BASE, BTN_LEFT | BTN_RIGHT,  GPIO_DIR_MODE_IN);
+	ROM_GPIOPadConfigSet(BTN_GPIO_BASE, BTN_LEFT | BTN_RIGHT,  GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
 
 	// If one of the buttons is not pressed, jump to the user program
-	if (ROM_GPIOPinRead(GPIO_PORTF_BASE, BTN_LEFT) || ROM_GPIOPinRead(GPIO_PORTF_BASE, BTN_RIGHT)) {
-		CallUserProgram();
-	}
+	if (ROM_GPIOPinRead(BTN_GPIO_BASE, BTN_LEFT | BTN_RIGHT))
+	    CallUserProgram();
 
 	// Both buttons pressed, start up the bootloader ...
 
@@ -163,8 +163,6 @@ int main(void)
 	ROM_uDMAControlBaseSet(&uDMAControlTable[0]);
 	ROM_uDMAEnable();
 
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_USB0);
-
 	// Configure the required pins for USB operation
 	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
 	ROM_GPIOPinTypeUSBAnalog(GPIO_PORTD_BASE, GPIO_PIN_5 | GPIO_PIN_4);
@@ -172,7 +170,7 @@ int main(void)
 	// http://forum.43oh.com/topic/7266-enable-usb-device-on-tiva-c-tm4c123g
     // Set the USB stack mode to Device mode with VBUS monitoring.
     //USBStackModeSet(0, eUSBModeDevice, 0);
-	USBStackModeSet(0, eUSBModeForceDevice, 0);
+    USBStackModeSet(0, eUSBModeForceDevice, 0);
 
 	// Pass our device information to the USB library and place the device on the bus
 	USBDMSCInit(0, &massStorageDevice);
@@ -181,12 +179,12 @@ int main(void)
 	UARTprintf("Bootloader started\n\n");
 #endif
 
-	ROM_GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, LED_BLUE);
+	ROM_GPIOPinTypeGPIOOutput(LED_GPIO_BASE, LED_BLUE);
 	while(1) {
 		// Blink the blue LED so the user knows we're in a bootloader mode
-		ROM_GPIOPinWrite(GPIO_PORTF_BASE, LED_BLUE, LED_BLUE);
+		ROM_GPIOPinWrite(LED_GPIO_BASE, LED_BLUE, LED_BLUE);
 		ROM_SysCtlDelay(ROM_SysCtlClockGet() / 4 / 2);
-		ROM_GPIOPinWrite(GPIO_PORTF_BASE, LED_BLUE, 0);
+		ROM_GPIOPinWrite(LED_GPIO_BASE, LED_BLUE, 0);
 		ROM_SysCtlDelay(ROM_SysCtlClockGet() / 4 / 2);
 	}
 }

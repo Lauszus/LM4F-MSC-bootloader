@@ -32,7 +32,7 @@
 #           Cross compiling toolchain / tools specifications
 #==============================================================================
 
-DEBUGUART ?= 1
+DEBUGUART ?= 0
 NOREAD ?= 0
 CRYPTO ?= 0
 

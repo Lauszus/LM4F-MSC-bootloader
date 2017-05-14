@@ -25,24 +25,25 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-#define BTN_LEFT    (GPIO_PIN_4)
-#define BTN_RIGHT   (GPIO_PIN_0)
-#define LED_RED     (GPIO_PIN_1)
-#define LED_BLUE    (GPIO_PIN_2)
-#define LED_GREEN   (GPIO_PIN_3)
+#define BTN_GPIO_PERIPH (SYSCTL_PERIPH_GPIOF)
+#define BTN_GPIO_BASE   (GPIO_PORTF_BASE)
+#define BTN_LEFT        (GPIO_PIN_4)
+#define BTN_RIGHT       (GPIO_PIN_0)
+
+#define LED_GPIO_PERIPH (SYSCTL_PERIPH_GPIOF)
+#define LED_GPIO_BASE   (GPIO_PORTF_BASE)
+#define LED_RED         (GPIO_PIN_1)
+#define LED_BLUE        (GPIO_PIN_2)
+#define LED_GREEN       (GPIO_PIN_3)
 
 #define UPLOAD_START  (0x6000)
 #define UPLOAD_LENGTH (0x40000 - UPLOAD_START)
 
 #ifdef CRYPTO
-
 #define UPLOAD_HEADER_LENGTH (32)
 #define UPLOAD_CODE_START (UPLOAD_START + UPLOAD_HEADER_LENGTH)
-
 #else
-
 #define UPLOAD_CODE_START (UPLOAD_START)
-
 #endif
 
 #endif
