@@ -24,7 +24,7 @@
 
 #include "crypto.h"
 #include "rsa.h"
-#include "common.h"
+#include "../common.h"
 
 #ifdef DEBUGUART
 #include "utils/uartstdio.h"

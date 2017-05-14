@@ -126,7 +126,7 @@ ifeq ($(DEBUGUART),1)
 SRC += ${STELLARISWARE_PATH}/utils/uartstdio.c
 endif
 ifeq ($(CRYPTO),1)
-SRC += crypto.c imath.c newlib_stubs.c rsa.c rsa_key.c sha256.c
+SRC += crypto/crypto.c crypto/imath.c crypto/newlib_stubs.c crypto/rsa.c crypto/rsa_key.c crypto/sha256.c
 endif
 OBJS = $(SRC:.c=.o)
 
@@ -167,6 +167,7 @@ ${PROJECT_NAME}: ${PROJECT_NAME}.axf
 # make clean rule
 clean:
 	rm -f *.bin *.o *.d *.axf *.lst
+	rm -f crypto/*.o crypto/*.d
 	$(MAKE) -C ${STELLARISWARE_PATH}/driverlib clean
 	$(MAKE) -C ${STELLARISWARE_PATH}/usblib clean
 

@@ -51,7 +51,7 @@
 #include "ramdisk.h"
 
 #ifdef CRYPTO
-#include "crypto.h"
+#include "crypto/crypto.h"
 #endif
 
 tDMAControlTable uDMAControlTable[64] __attribute__ ((aligned(1024)));

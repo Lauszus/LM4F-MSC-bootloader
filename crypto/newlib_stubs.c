@@ -4,6 +4,10 @@
  *  Created on: 2 Nov 2010
  *      Author: nanoage.co.uk
  */
+
+#include <stdint.h>
+#include <stdbool.h>
+
 #include "inc/hw_gpio.h"
 #include "inc/hw_types.h"
 #include "inc/hw_memmap.h"
@@ -34,7 +38,7 @@ extern int errno;
 
 /*
  environ
- A pointer to a list of environment variables and their values. 
+ A pointer to a list of environment variables and their values.
  For a minimal environment, this empty list is adequate:
  */
 char *__env[1] = { 0 };
@@ -171,7 +175,7 @@ int _read(int file, char *ptr, int len) {
     switch (file) {
     case STDIN_FILENO:
         for (n = 0; n < len; n++) {
-            do 
+            do
             {
               c = UARTCharGetNonBlocking(UART0_BASE);
             } while (c == -1);

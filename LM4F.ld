@@ -28,6 +28,9 @@ MEMORY
     SRAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00008000
 }
 
+_estack = 0x20008000; /* Upper stack boundary */
+_sstack = (_estack - 256); /* Lower stack boundary */
+
 SECTIONS
 {
     .text :
@@ -55,3 +58,7 @@ SECTIONS
         _ebss = .;
     } > SRAM
 }
+
+. = ALIGN(4);
+end = .;
+_end = .;
