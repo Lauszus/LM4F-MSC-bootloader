@@ -56,7 +56,7 @@
 #define FIRMWARE_START_SECTOR (DATA_REGION_SECTOR + (firmware_start_cluster - 2) * SECTORS_PER_CLUSTER)
 
 int massStorageDrive = 0;
-int newFirmwareStartSet = 0;
+bool newFirmwareStartSet = false;
 unsigned long firmware_start_cluster = FIRMWARE_BIN_CLUSTER;
 
 unsigned char bootSector[] = {
@@ -306,7 +306,7 @@ unsigned long massStorageWrite(void *drive, unsigned char *data, unsigned long b
 	else if (blockNumber >= FIRMWARE_START_SECTOR) {
 		if (isFirmwareStart(data)) { // TODO: Reset flag after when the firmware has been read
 			// the host tried to write actual data to the data region, we assume this is the new firmware
-			newFirmwareStartSet = 1;
+			newFirmwareStartSet = true;
 			firmware_start_cluster = (blockNumber - DATA_REGION_SECTOR) / SECTORS_PER_CLUSTER + 2;
 #ifdef DEBUGUART
             UARTprintf("New firmware start\n");

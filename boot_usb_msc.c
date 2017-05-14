@@ -179,12 +179,14 @@ int main(void)
 	UARTprintf("Bootloader started\n\n");
 #endif
 
-	ROM_GPIOPinTypeGPIOOutput(LED_GPIO_BASE, LED_BLUE);
+	ROM_GPIOPinTypeGPIOOutput(LED_GPIO_BASE, LED_GREEN | LED_BLUE);
 	while(1) {
-		// Blink the blue LED so the user knows we're in a bootloader mode
-		ROM_GPIOPinWrite(LED_GPIO_BASE, LED_BLUE, LED_BLUE);
-		ROM_SysCtlDelay(ROM_SysCtlClockGet() / 4 / 2);
-		ROM_GPIOPinWrite(LED_GPIO_BASE, LED_BLUE, 0);
-		ROM_SysCtlDelay(ROM_SysCtlClockGet() / 4 / 2);
+	    // Blink the blue LED so the user knows we are in bootloader mode
+	    // The green LED will blink when the new firmware has been programmed
+	    const uint32_t led = newFirmwareStartSet ? LED_GREEN : LED_BLUE; // TODO: Use different flag
+	    ROM_GPIOPinWrite(LED_GPIO_BASE, LED_GREEN | LED_BLUE, led);
+	    ROM_SysCtlDelay(ROM_SysCtlClockGet() / 4 / 2);
+        ROM_GPIOPinWrite(LED_GPIO_BASE, LED_GREEN | LED_BLUE, 0);
+        ROM_SysCtlDelay(ROM_SysCtlClockGet() / 4 / 2);
 	}
 }

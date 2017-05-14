@@ -31,4 +31,6 @@ extern unsigned long massStorageRead(void *drive, unsigned char *data, unsigned 
 extern unsigned long massStorageWrite(void *drive, unsigned char *data, unsigned long blockNumber, unsigned long numberOfBlocks);
 extern unsigned long massStorageNumBlocks(void *drive);
 
+extern bool newFirmwareStartSet;
+
 #endif
