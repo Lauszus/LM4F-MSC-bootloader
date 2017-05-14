@@ -26,6 +26,7 @@
 #include <stdbool.h>
 
 #include "ramdisk.h"
+#include "boot_usb_msc.h"
 #include "common.h"
 
 #include "inc/hw_flash.h"
@@ -212,11 +213,12 @@ void massStorageClose(void *drive)
 #ifdef DEBUGUART
     UARTprintf("massStorageClose\n");
 #endif
+    CallUserProgram();
 }
 
 unsigned long massStorageRead(void *drive, unsigned char *data, unsigned long blockNumber, unsigned long numberOfBlocks)
 {
-#ifdef DEBUGUART
+#if defined(DEBUGUART) && 0
 	UARTprintf("Reading %d block(s) starting at %d\n", numberOfBlocks, blockNumber);
 #endif
 	for (int i = 0; i < BLOCK_SIZE; i++) {
@@ -242,7 +244,7 @@ unsigned long massStorageRead(void *drive, unsigned char *data, unsigned long bl
 	}
 	else if (blockNumber >= FIRMWARE_START_SECTOR && blockNumber < FIRMWARE_START_SECTOR + UPLOAD_LENGTH / BLOCK_SIZE) {
 #ifdef NOREAD
-		unsigned char dummy[] = "READ DISABLED   ";
+		unsigned char dummy[16] = "READ DISABLED  \n";
 		for (int i = 0; i < BLOCK_SIZE; i++) {
 			data[i] = dummy[i % 16];
 		}
@@ -255,9 +257,24 @@ unsigned long massStorageRead(void *drive, unsigned char *data, unsigned long bl
 	return BLOCK_SIZE;
 }
 
+// Inspired by: https://github.com/opentx/opentx/blob/eb7c73668f55026c57b880027acc77f1bd2ee00a/radio/src/targets/taranis/flash_driver.cpp
+// Please report back if this header does not match your binary file
+static bool isFirmwareStart(const uint8_t *buffer) {
+    const uint32_t *block = (const uint32_t*)buffer;
+    if ((block[0] & 0xFFFC0000) != 0x20000000)
+        return false;
+    if ((block[1] & 0xFFFF000F) != 0x9)
+        return false;
+    if ((block[2] & 0xFFFF000F) != 0x1)
+        return false;
+    if ((block[3] & 0xFFFF000F) != 0x3)
+        return false;
+    return true;
+}
+
 unsigned long massStorageWrite(void *drive, unsigned char *data, unsigned long blockNumber, unsigned long numberOfBlocks)
 {
-#ifdef DEBUGUART
+#if defined(DEBUGUART) && 0
 	UARTprintf("Writing %d block(s) starting at %d\n", numberOfBlocks, blockNumber);
 	UARTprintf("Firmware start cluster: %d\n", firmware_start_cluster);
 	for (int j = 0; j < BLOCK_SIZE * numberOfBlocks; j += 16) {
@@ -282,21 +299,28 @@ unsigned long massStorageWrite(void *drive, unsigned char *data, unsigned long b
 			dirEntry[i] = data[i];
 		}
 	}
-	else if (blockNumber >= DATA_REGION_SECTOR) {
-		if (!newFirmwareStartSet) {
+	// The bootloader is 16 kB i.e. 32 blocks of 512 bytes
+	else if (blockNumber >= FIRMWARE_START_SECTOR) {
+		if (isFirmwareStart(data)) { // TODO: Reset flag after when the firmware has been read
 			// the host tried to write actual data to the data region, we assume this is the new firmware
 			newFirmwareStartSet = 1;
 			firmware_start_cluster = (blockNumber - DATA_REGION_SECTOR) / SECTORS_PER_CLUSTER + 2;
+#ifdef DEBUGUART
+            UARTprintf("New firmware start\n");
+#endif
 		}
-		// new firmware is being uploaded
-		if (blockNumber < FIRMWARE_START_SECTOR + UPLOAD_LENGTH / BLOCK_SIZE) {
+		// New firmware is being uploaded
+		if (newFirmwareStartSet && blockNumber < FIRMWARE_START_SECTOR + UPLOAD_LENGTH / BLOCK_SIZE) {
 			unsigned long address = (blockNumber - FIRMWARE_START_SECTOR) * BLOCK_SIZE + UPLOAD_START;
-			// erase
+			// Erase
 			if (blockNumber == FIRMWARE_START_SECTOR) {
-				for (int counter = 0; counter < UPLOAD_LENGTH / 1024; counter++) {
-					FlashErase(UPLOAD_START + counter * 1024);
+				for (int counter = 0; counter < UPLOAD_LENGTH / FLASH_ERASE_SIZE; counter++) {
+					FlashErase(UPLOAD_START + counter * FLASH_ERASE_SIZE);
 				}
 			}
+#ifdef DEBUGUART
+            UARTprintf("Writing to flash at: %u\n", blockNumber);
+#endif
 			FlashProgram((unsigned long *)data, address, BLOCK_SIZE * numberOfBlocks);
 			return BLOCK_SIZE * numberOfBlocks;
 		}
@@ -306,6 +330,6 @@ unsigned long massStorageWrite(void *drive, unsigned char *data, unsigned long b
 
 unsigned long massStorageNumBlocks(void *drive)
 {
-	// filesystem size is 512kB
-	return 1024;
+	// Filesystem size is 512 kB
+	return 1024; // (2^9*1024)/BLOCK_SIZE
 }
