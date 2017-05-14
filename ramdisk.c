@@ -157,11 +157,21 @@ unsigned char fatTable[] = {
                             (15 << 5)             /* Minute (0-59) */   | \
                             (0 >> 1))             /* Seconds (Divided by 2) */
 
+enum attributes_e {
+    ATTR_READ_ONLY = 0x01,
+    ATTR_HIDDEN = 0x02,
+    ATTR_SYSTEM = 0x04,
+    ATTR_VOLUME_ID = 0x08,
+    ATTR_DIRECTORY = 0x10,
+    ATTR_ARCHIVE = 0x20,
+    ATTR_LONG_NAME = ATTR_READ_ONLY | ATTR_HIDDEN | ATTR_SYSTEM | ATTR_VOLUME_ID,
+};
+
 unsigned char dirEntry[] = {
 	// A long filename entry for firmware.bin
-	0x41,                                                             // Sequence number
+	0x41,                                                             // Sequence number (LAST_LONG_ENTRY (0x40) | N)
 	'f', 0x00, 'i', 0x00, 'r', 0x00, 'm', 0x00, 'w', 0x00,            // Five name characters in UTF-16
-	0x0f,                                                             // Attributes
+	ATTR_LONG_NAME,                                                   // Attribute
 	0x00,                                                             // Type
 #ifdef CRYPTO
 	0x14,                                                             // Checksum of DOS filename
@@ -181,7 +191,7 @@ unsigned char dirEntry[] = {
 #else
 	'B', 'I', 'N',                          // Extension
 #endif
-	0x20,                                   // Attribute byte
+	ATTR_ARCHIVE,                           // Attribute byte
 	0x00,                                   // Reserved for Windows NT
 	0x00,                                   // Creation millisecond
 	QBVAL(FIRMWARE_DATE_TIME),              // Creation date and time
