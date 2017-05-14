@@ -34,6 +34,8 @@
 #include "inc/hw_sysctl.h"
 #include "inc/hw_types.h"
 #include "driverlib/flash.h"
+#include "usblib/usblib.h"
+#include "usblib/device/usbdevice.h"
 
 #ifdef DEBUGUART
 #include "utils/uartstdio.h"
@@ -151,7 +153,7 @@ unsigned char fatTable[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
-#define FIRMWARE_DATE_TIME (((2017 - 1980) << 25) /* Year since 1080 */ | \
+#define FIRMWARE_DATE_TIME (((2017 - 1980) << 25) /* Year since 1980 */ | \
                             (5 << 21)             /* Month (1-12) */    | \
                             (14 << 16)            /* Day (1-31) */      | \
                             (23 << 11)            /* Hour (0-23) */     | \
@@ -213,6 +215,7 @@ void massStorageClose(void *drive)
 #ifdef DEBUGUART
     UARTprintf("massStorageClose\n");
 #endif
+    USBDCDTerm(0); // Terminate the USB connection
     CallUserProgram();
 }
 
